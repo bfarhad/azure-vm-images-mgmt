@@ -51,9 +51,13 @@ Azure Policy & Blueprints: Enforces compliance with security and operational bes
 
 # Business Benefits
 ✅ Scalability: Auto-scaling VMs with Azure Scale Sets.
+
 ✅ Security: Enforced access control with Microsoft Entra ID & Azure PIM.
+
 ✅ Automation: Fully automated deployments via IaC & CI/CD pipelines.
+
 ✅ Resilience: High availability with backups, disaster recovery, and monitoring.
+
 ✅ Cost Efficiency: Optimized infrastructure with Azure Cost Management & governance tools.
 
 A conceptual diagram would illustrate the above components visually—showing connectivity between VMs, networking, security layers, identity management, and monitoring tools.
