@@ -66,26 +66,26 @@ A conceptual diagram would illustrate the above components visually—showing co
 | Terraform Project Structure
 | ---------------------------
 |terraform/
-|│── modules/
-|│   ├── network/
-|│   │   ├── main.tf
-|│   │   ├── variables.tf
-|│   │   ├── outputs.tf
-|│   ├── compute/
-|│   │   ├── main.tf
-|│   │   ├── variables.tf
-|│   │   ├── outputs.tf
-|│   ├── security/
-|│   │   ├── main.tf
-|│   │   ├── variables.tf
-|│   │   ├── outputs.tf
-|│   ├── monitoring/
-|│   │   ├── main.tf
-|│   │   ├── variables.tf
-|│   │   ├── outputs.tf
-|│── main.tf
-|│── variables.tf
-|│── outputs.tf
-|│── providers.tf
-|│── terraform.tfvars
-|│── backend.tf (optional for remote state)
+│── modules/
+│   ├── network/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   ├── compute/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   ├── security/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   ├── monitoring/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│── main.tf
+│── variables.tf
+│── outputs.tf
+│── providers.tf
+│── terraform.tfvars
+│── backend.tf (optional for remote state)
