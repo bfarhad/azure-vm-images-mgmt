@@ -63,27 +63,23 @@ Azure Policy & Blueprints: Enforces compliance with security and operational bes
 A conceptual diagram would illustrate the above components visually—showing connectivity between VMs, networking, security layers, identity management, and monitoring tools.
 ![Alt text](images/my_azure_architecture.png)
 
-|terraform/
-│── modules/
-│   ├── network/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│   ├── compute/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│   ├── security/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│   ├── monitoring/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│── main.tf
-│── variables.tf
-│── outputs.tf
-│── providers.tf
-│── terraform.tfvars
-│── backend.tf (optional for remote state)
+| Directory/File      | Description                                      |
+|---------------------|--------------------------------------------------|
+| `modules/`         | Contains reusable Terraform modules.             |
+| `modules/networking/` | Networking resources (VPCs, Subnets, etc.).    |
+| `modules/compute/` | Compute resources (VMs, Containers, etc.).       |
+| `modules/security/` | Security components (IAM, Security Groups, etc.). |
+| `environments/`    | Separate configurations for different environments. |
+| `environments/dev/` | Development environment configuration.           |
+| `environments/prod/` | Production environment configuration.           |
+| `providers.tf`     | Defines provider configurations.                  |
+| `terraform.tfvars` | Stores variable values (should be kept private).  |
+| `backend.tf`       | Configures Terraform backend storage.             |
+| `README.md`        | Documentation for the project.                    |
+
+## Modules Explanation
+- **`modules/`** - Contains reusable Terraform modules.
+- **`environments/`** - Different environment configurations.
+- **`providers.tf`** - Defines provider settings (Azure, AWS, etc.).
+- **`terraform.tfvars`** - Stores variables (should be excluded from Git).
+
