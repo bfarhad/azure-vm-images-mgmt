@@ -55,10 +55,18 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Set ARM Variables
+      run: |
+        CREDENTIALS='${{ secrets.AZURE_CREDENTIALS }}'
+        echo "ARM_CLIENT_ID=$(echo $CREDENTIALS | jq -r .clientId)" >> $GITHUB_ENV
+        echo "ARM_CLIENT_SECRET=$(echo $CREDENTIALS | jq -r .clientSecret)" >> $GITHUB_ENV
+        echo "ARM_TENANT_ID=$(echo $CREDENTIALS | jq -r .tenantId)" >> $GITHUB_ENV
+
     - name: Get Subscription ID
       run: |
         SUBSCRIPTION_ID=$(az account show --query id -o tsv)
         echo "TF_VAR_subscription_id=$SUBSCRIPTION_ID" >> $GITHUB_ENV
+        echo "ARM_SUBSCRIPTION_ID=$SUBSCRIPTION_ID" >> $GITHUB_ENV
         echo "Subscription ID: $SUBSCRIPTION_ID"
         echo "TF_VAR_storage_account_name=${{ inputs.storage_account_name }}" >> $GITHUB_ENV
 
