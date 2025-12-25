@@ -7,9 +7,46 @@ resource "azurerm_shared_image_gallery" "gallery" {
   tags = var.tags
 }
 
-# Example of image versioning - set managed_image_id variable to enable
+resource "azurerm_image_template" "template" {
+  name                = "${var.build_image_name}-template"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  build {
+    vm_size = "Standard_B1s"
+    os_type = "Linux"
+
+    source {
+      platform_image {
+        publisher = var.base_image_publisher
+        offer     = var.base_image_offer
+        sku       = var.base_image_sku
+        version   = "latest"
+      }
+    }
+
+    customize {
+      inline = [var.build_script]
+    }
+  }
+
+  deploy {
+    managed_image {
+      resource_group_name = var.resource_group_name
+      name                = "${var.build_image_name}-managed"
+    }
+  }
+
+  tags = var.tags
+}
+
+data "azurerm_image" "managed" {
+  name                = azurerm_image_template.template.deploy.managed_image.name
+  resource_group_name = var.resource_group_name
+  depends_on          = [azurerm_image_template.template]
+}
+
 resource "azurerm_shared_image_version" "version" {
-  count               = var.managed_image_id != null ? 1 : 0
   name                = "1.0.0"
   gallery_name        = azurerm_shared_image_gallery.gallery.name
   image_name          = azurerm_shared_image.image.name
@@ -21,9 +58,10 @@ resource "azurerm_shared_image_version" "version" {
     regional_replica_count = 1
   }
 
-  managed_image_id = var.managed_image_id
+  managed_image_id = data.azurerm_image.managed.id
 
   tags = var.tags
+  depends_on = [azurerm_image_template.template, data.azurerm_image.managed]
 }
 
 resource "azurerm_shared_image" "image" {

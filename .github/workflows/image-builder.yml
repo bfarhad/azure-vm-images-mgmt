@@ -40,6 +40,21 @@ jobs:
         Install-Module -Name Az -AllowClobber -Force
         Import-Module Az
 
+    - name: Get Public IP
+      run: |
+        $publicIp = (Invoke-WebRequest -Uri "https://api.ipify.org").Content
+        echo "PUBLIC_IP=$publicIp" >> $env:GITHUB_ENV
+
+    - name: Whitelist IP in Key Vault
+      run: |
+        $kvName = "rgdevazurevmimagesmgmtkv"
+        if (az keyvault show --name $kvName --query name -o tsv 2>$null) {
+          Write-Host "Key Vault $kvName exists. Adding IP $env:PUBLIC_IP to allowed IPs."
+          az keyvault network-rule add --name $kvName --ip-address "$env:PUBLIC_IP/32"
+        } else {
+          Write-Host "Key Vault $kvName does not exist. Skipping IP whitelisting."
+        }
+
     - name: Get Image ID
       run: |
         $imageId = az sig image-version show `
@@ -64,7 +79,7 @@ jobs:
             --location ${{ env.LOCATION }}
         } else {
           $password = az keyvault secret show `
-            --vault-name "devazurevmimagesmgmtkv" `
+            --vault-name "rgdevazurevmimagesmgmtkv" `
             --name "admin-password" `
             --query "value" -o tsv
           az vmss create `

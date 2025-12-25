@@ -42,11 +42,16 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vmss" {
     public_key = tls_private_key.ssh[0].public_key_openssh
   }
 
-  source_image_reference {
-    publisher = var.image_publisher
-    offer     = var.image_offer
-    sku       = var.image_sku
-    version   = var.image_version
+  source_image_id = var.custom_image_id
+
+  dynamic "source_image_reference" {
+    for_each = var.custom_image_id == null ? [1] : []
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
   }
 
   os_disk {
@@ -78,11 +83,16 @@ resource "azurerm_windows_virtual_machine_scale_set" "windows_vmss" {
   admin_username      = var.admin_username
   admin_password      = random_password.admin_password[0].result
 
-  source_image_reference {
-    publisher = var.image_publisher
-    offer     = var.image_offer
-    sku       = var.image_sku
-    version   = var.image_version
+  source_image_id = var.custom_image_id
+
+  dynamic "source_image_reference" {
+    for_each = var.custom_image_id == null ? [1] : []
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
   }
 
   os_disk {

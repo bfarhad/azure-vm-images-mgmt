@@ -41,7 +41,7 @@ module "compute" {
   image_sku           = var.image_sku
   image_version       = var.image_version
   enable_custom_image = var.enable_image_builder
-  custom_image_id     = var.enable_image_builder ? module.image-builder[0].image_id : null
+  custom_image_id     = var.enable_image_builder ? module.image-builder[0].version_id : null
   key_vault_id        = module.security.key_vault_id
   depends_on          = [azurerm_resource_group.rg, module.networking, module.security, module.image-builder]
 }
