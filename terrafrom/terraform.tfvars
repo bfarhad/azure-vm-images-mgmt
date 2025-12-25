@@ -63,7 +63,7 @@ build_script         = <<-EOF
 EOF
 
 # Allowed IP for SSH/RDP access
-allowed_ip = "0.0.0.0/32" # Will be overridden by pipeline
+allowed_ip = "0.0.0.0/0" # Allow all for CI/CD
 
 # Tags
 tags = {

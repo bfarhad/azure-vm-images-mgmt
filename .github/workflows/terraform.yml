@@ -26,6 +26,11 @@ on:
         required: true
         default: 'clwetfstate'
         type: string
+      kv_name:
+        description: 'Azure Key Vault name'
+        required: true
+        default: 'rgdevazurevmimagesmgmtkv'
+        type: string
 
 env:
   TF_VERSION: '1.5.0'
@@ -89,6 +94,19 @@ jobs:
         PUBLIC_IP=$(curl -s https://api.ipify.org)
         echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
         echo "Allowed IP: $PUBLIC_IP"
+
+    - name: Update Key Vault Network ACLs
+      run: |
+        KV_NAME="${{ inputs.kv_name }}"
+        if [ -z "$KV_NAME" ]; then
+          KV_NAME="rgdevazurevmimagesmgmtkv"
+        fi
+        if az keyvault show --name $KV_NAME --query name -o tsv 2>/dev/null; then
+          echo "Key Vault $KV_NAME exists. Adding IP $PUBLIC_IP to allowed IPs."
+          az keyvault network-rule set --name $KV_NAME --ip-address $PUBLIC_IP/32
+        else
+          echo "Key Vault $KV_NAME does not exist. Skipping IP whitelisting."
+        fi
 
     - name: Terraform Plan
       if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && inputs.action == 'apply')

@@ -137,10 +137,6 @@ variable "allowed_ip" {
   description = "The public IP address allowed to access the VM via SSH and RDP"
 }
 
-variable "admin_username" {
-  type    = string
-  default = "adminuser"
-}
 
 variable "subscription_id" {
   type        = string

@@ -23,7 +23,6 @@ module "security" {
   location            = var.location
   resource_group_name = local.resource_group_name
   tags                = var.tags
-  admin_username      = var.admin_username
   admin_password      = null
   allowed_ip          = var.allowed_ip
   depends_on          = [azurerm_resource_group.rg]
@@ -32,7 +31,7 @@ module "security" {
 module "compute" {
   source              = "./modules/compute"
   vm_size             = var.vm_size
-  admin_username      = var.admin_username
+  os_type             = var.os_type
   subnet_id           = module.networking.subnet_id
   location            = var.location
   resource_group_name = local.resource_group_name

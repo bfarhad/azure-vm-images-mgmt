@@ -3,7 +3,8 @@ variable "vm_size" {
 }
 
 variable "admin_username" {
-  type = string
+  type    = string
+  default = "azureuser"
 }
 
 
@@ -55,9 +56,9 @@ variable "key_vault_id" {
 
 variable "os_type" {
   type = string
-  default = "linux"
+  default = "Linux"
   validation {
-    condition = contains(["linux", "windows"], var.os_type)
-    error_message = "os_type must be either 'linux' or 'windows'."
+    condition = contains(["Linux", "Windows"], var.os_type)
+    error_message = "os_type must be either 'Linux' or 'Windows'."
   }
 }

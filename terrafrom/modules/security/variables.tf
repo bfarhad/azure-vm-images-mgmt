@@ -15,7 +15,8 @@ variable "tags" {
 }
 
 variable "admin_username" {
-  type = string
+  type    = string
+  default = "azureuser"
 }
 
 variable "admin_password" {
