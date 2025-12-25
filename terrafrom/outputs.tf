@@ -15,23 +15,6 @@ output "subnet_name" {
   value = module.networking.subnet_name
 }
 
-# Compute outputs
-output "vmss_id" {
-  value = module.compute.vmss_id
-}
-
-output "vmss_name" {
-  value = module.compute.vmss_name
-}
-
-output "nic_id" {
-  value = module.compute.nic_id
-}
-
-output "nic_name" {
-  value = module.compute.nic_name
-}
-
 # Security outputs
 output "key_vault_id" {
   value = module.security.key_vault_id
@@ -47,32 +30,6 @@ output "nsg_id" {
 
 output "nsg_name" {
   value = module.security.nsg_name
-}
-
-# Monitoring outputs
-output "log_analytics_workspace_id" {
-  value = module.monitoring.log_analytics_workspace_id
-}
-
-output "log_analytics_workspace_name" {
-  value = module.monitoring.log_analytics_workspace_name
-}
-
-
-output "vmss_extension_id" {
-  value = module.monitoring.vmss_extension_id
-}
-
-output "vmss_extension_name" {
-  value = module.monitoring.vmss_extension_name
-}
-
-output "dashboard_id" {
-  value = module.monitoring.dashboard_id
-}
-
-output "dashboard_name" {
-  value = module.monitoring.dashboard_name
 }
 
 # Image Builder outputs (conditional)
