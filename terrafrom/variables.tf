@@ -9,10 +9,6 @@ variable "project_name" {
   default = "azure-vm-images-mgmt"
 }
 
-variable "vnet_name" {
-  type = string
-}
-
 variable "vnet_cidr" {
   type    = string
   default = "192.168.1.0/24"
@@ -147,10 +143,6 @@ variable "admin_username" {
 }
 
 
-variable "keyvault_name" {
-  type = string
-}
-
 variable "log_analytics_workspace" {
   type = string
 }
@@ -158,10 +150,6 @@ variable "log_analytics_workspace" {
 variable "location" {
   type    = string
   default = "West Europe"
-}
-
-variable "resource_group_name" {
-  type = string
 }
 
 variable "tags" {
