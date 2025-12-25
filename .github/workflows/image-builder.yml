@@ -42,8 +42,9 @@ jobs:
     
     - name: Get Public IP
       run: |
-        $publicIp = (Invoke-WebRequest -Uri "https://api.ipify.org").Content
-        echo "PUBLIC_IP=$publicIp" >> $env:GITHUB_ENV
+        PUBLIC_IP=$(curl -s https://api.ipify.org)
+        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+        echo "Allowed IP: $PUBLIC_IP"
 
     - name: Update Key Vault Network ACLs
       run: |
@@ -74,52 +75,49 @@ jobs:
 
     - name: Get Image ID
       run: |
-        $imageId = az sig image-version show `
-          --resource-group ${{ env.RESOURCE_GROUP }} `
-          --gallery-name ${{ env.GALLERY_NAME }} `
-          --gallery-image-definition ${{ inputs.image_name }} `
-          --gallery-image-version "latest" `
-          --query "id" -o tsv
-        echo "IMAGE_ID=$imageId" >> $env:GITHUB_ENV
-      shell: bash
+        IMAGE_ID=$(az sig image-version show \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --gallery-name ${{ env.GALLERY_NAME }} \
+          --gallery-image-definition ${{ inputs.image_name }} \
+          --gallery-image-version "latest" \
+          --query "id" -o tsv)
+        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
 
     - name: Provision VMSS
       run: |
-        if ('${{ inputs.os_type }}' -eq 'linux') {
-          az vmss create `
-            --resource-group ${{ env.RESOURCE_GROUP }} `
-            --name "${{ env.RESOURCE_GROUP }}-vmss" `
-            --image $env:IMAGE_ID `
-            --admin-username "adminuser" `
-            --generate-ssh-keys `
-            --instance-count 1 `
-            --vm-sku "Standard_B1s" `
+        if [ "${{ inputs.os_type }}" = "linux" ]; then
+          az vmss create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name "${{ env.RESOURCE_GROUP }}-vmss" \
+            --image $IMAGE_ID \
+            --admin-username "adminuser" \
+            --generate-ssh-keys \
+            --instance-count 1 \
+            --vm-sku "Standard_B1s" \
             --location ${{ env.LOCATION }}
-        } else {
-          $password = az keyvault secret show `
-            --vault-name "rgdevazurevmimagesmgmtkv" `
-            --name "admin-password" `
-            --query "value" -o tsv
-          az vmss create `
-            --resource-group ${{ env.RESOURCE_GROUP }} `
-            --name "${{ env.RESOURCE_GROUP }}-vmss" `
-            --image $env:IMAGE_ID `
-            --admin-username "adminuser" `
-            --admin-password $password `
-            --instance-count 1 `
-            --vm-sku "Standard_B1s" `
+        else
+          PASSWORD=$(az keyvault secret show \
+            --vault-name "rgdevazurevmimagesmgmtkv" \
+            --name "admin-password" \
+            --query "value" -o tsv)
+          az vmss create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name "${{ env.RESOURCE_GROUP }}-vmss" \
+            --image $IMAGE_ID \
+            --admin-username "adminuser" \
+            --admin-password $PASSWORD \
+            --instance-count 1 \
+            --vm-sku "Standard_B1s" \
             --location ${{ env.LOCATION }}
-        }
-      shell: bash
+        fi
 
     - name: Get VMSS Public IP
       run: |
-        $publicIp = az network public-ip show `
-          --resource-group ${{ env.RESOURCE_GROUP }} `
-          --name "${{ env.RESOURCE_GROUP }}-pip" `
-          --query "ipAddress" -o tsv
-        echo "PUBLIC_IP=$publicIp" >> $env:GITHUB_ENV
-      shell: bash
+        PUBLIC_IP=$(az network public-ip show \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --name "${{ env.RESOURCE_GROUP }}-pip" \
+          --query "ipAddress" -o tsv)
+        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
 
     - name: Test Connectivity
       run: |
