@@ -1,11 +1,18 @@
+# Azure VM Images Management Infrastructure
+
+This repository contains Terraform code to provision Azure infrastructure for VM image management, including networking, compute, security, monitoring, and optional image building capabilities.
+
 ## Proposed Azure Cloud Architecture Solution
+
 This architectural solution incorporates all the required components, ensuring scalability, security, automation, and cost efficiency in an Azure environment.
 
-1. Architecture Overview
+## Architecture Overview
+
 The proposed solution is a highly available, secure, and automated Azure cloud infrastructure, supporting various workloads while integrating networking, identity management, and Infrastructure as Code (IaC) for deployment automation.
 
-2. Key Components & Design
-   A. Compute Layer – Azure Virtual Machines (VMs) & Workload Customization
+## Key Components & Design
+
+A. Compute Layer – Azure Virtual Machines (VMs) & Workload Customization
    Azure Virtual Machines (IaaS): Used for hosting critical applications and services.
 
    Custom VM Images: Built using Azure Image Builder to standardize workload configurations.
@@ -49,7 +56,8 @@ F. Cost Optimization & Governance
 
    Azure Policy & Blueprints: Enforces compliance with security and operational best practices.
 
-# Business Benefits
+## Business Benefits
+
 ✅ Scalability: Auto-scaling VMs with Azure Scale Sets.
 
 ✅ Security: Enforced access control with Microsoft Entra ID & Azure PIM.
@@ -60,26 +68,155 @@ F. Cost Optimization & Governance
 
 ✅ Cost Efficiency: Optimized infrastructure with Azure Cost Management & governance tools.
 
-A conceptual diagram would illustrate the above components visually—showing connectivity between VMs, networking, security layers, identity management, and monitoring tools.
-![Alt text](images/my_azure_architecture.png)
+## Architecture Diagram
 
-| Directory/File      | Description                                      |
-|---------------------|--------------------------------------------------|
-| `modules/`         | Contains reusable Terraform modules.             |
-| `modules/networking/` | Networking resources (VPCs, Subnets, etc.).    |
-| `modules/compute/` | Compute resources (VMs, Containers, etc.).       |
-| `modules/security/` | Security components (IAM, Security Groups, etc.). |
-| `environments/`    | Separate configurations for different environments. |
-| `environments/dev/` | Development environment configuration.           |
-| `environments/prod/` | Production environment configuration.           |
-| `providers.tf`     | Defines provider configurations.                  |
-| `terraform.tfvars` | Stores variable values (should be kept private).  |
-| `backend.tf`       | Configures Terraform backend storage.             |
-| `README.md`        | Documentation for the project.                    |
+A conceptual diagram illustrates the above components visually—showing connectivity between VMs, networking, security layers, identity management, and monitoring tools.
+
+![Azure Cloud Architecture](images/my_azure_architecture.png)
+
+## Directory Structure
+
+| Directory/File                  | Description                                      |
+|---------------------------------|--------------------------------------------------|
+| `terrafrom/`                   | Contains Terraform configuration files.          |
+| `terrafrom/modules/`           | Reusable Terraform modules for different components. |
+| `terrafrom/modules/networking/`| Networking resources (VNet, Subnets, etc.).     |
+| `terrafrom/modules/compute/`   | Compute resources (VMs, VMSS, etc.).             |
+| `terrafrom/modules/security/`  | Security components (NSG, Key Vault, etc.).      |
+| `terrafrom/modules/monitoring/`| Monitoring and observability resources.          |
+| `terrafrom/modules/image-builder/` | Custom image building resources.              |
+| `terrafrom/modules/automation/`| Automation account resources.                    |
+| `terrafrom/modules/backup/`    | Backup resources.                                |
+| `terrafrom/modules/cost/`      | Cost management resources.                       |
+| `terrafrom/modules/iam/`       | Identity and access management.                  |
+| `terrafrom/modules/observability/` | Additional observability tools.               |
+| `images/`                      | Architecture diagrams and icons.                 |
+| `main.py`                      | Python script for generating diagrams.            |
+| `requirements.txt`             | Python dependencies.                              |
+| `.github/`                     | GitHub Actions workflows.                         |
+| `README.md`                    | Project documentation.                            |
+| `terrafrom/provider.tf`        | Defines Azure provider configuration.             |
+| `terrafrom/terraform.tfvars`   | Variable values for Terraform.                    |
+| `terrafrom/variables.tf`       | Input variables definitions.                      |
+| `terrafrom/main.tf`            | Main Terraform configuration.                     |
+| `terrafrom/outputs.tf`         | Output values from Terraform.                     |
+| `terrafrom/locals.tf`          | Local values for Terraform.                       |
 
 ## Modules Explanation
-- **`modules/`** - Contains reusable Terraform modules.
-- **`environments/`** - Different environment configurations.
-- **`providers.tf`** - Defines provider settings (Azure, AWS, etc.).
-- **`terraform.tfvars`** - Stores variables (should be excluded from Git).
 
+- **`terrafrom/modules/`** - Contains reusable Terraform modules for various Azure components.
+- **`images/`** - Stores generated architecture diagrams.
+- **`terrafrom/provider.tf`** - Defines provider settings for Azure.
+- **`terrafrom/terraform.tfvars`** - Stores variables (should be excluded from Git).
+- **`main.py`** - Script to generate architecture diagrams.
+
+## Prerequisites
+
+- Azure subscription
+- Terraform >= 1.5.0
+- GitHub repository with Actions enabled
+
+## Setup
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd azure-vm-images-mgmt
+```
+
+### 2. Configure Azure Credentials
+
+Go to your GitHub repository settings > Secrets and variables > Actions, and add the following secrets:
+
+- `AZURE_CREDENTIALS`: Azure service principal credentials in JSON format. You can create one using:
+
+```bash
+az ad sp create-for-rbac --name "github-actions-sp" --role contributor --scopes /subscriptions/<subscription-id> --sdk-auth
+```
+
+Copy the JSON output and paste it as the secret value.
+
+### 3. Customize Configuration
+
+Edit `terrafrom/terraform.tfvars` to match your requirements:
+
+```hcl
+environment = "dev"
+project_name = "azure-vm-images-mgmt"
+location = "West Europe"
+# ... other variables
+```
+
+### 4. Enable Image Builder (Optional)
+
+Set `enable_image_builder = true` in `terraform.tfvars` to enable custom image building.
+
+## Usage
+
+### Local Development
+
+```bash
+cd terrafrom
+terraform init
+terraform plan -var-file=terraform.tfvars
+terraform apply -var-file=terraform.tfvars
+```
+
+### CI/CD Pipeline
+
+The GitHub Actions workflows automatically:
+
+- Validates Terraform configuration on pull requests
+- Applies changes on push to main branch
+- Builds custom VM images on manual trigger
+
+#### Workflow Triggers
+
+- **Pull Requests**: Runs format, validate, and plan
+- **Push to main**: Runs full apply after validation
+- **Image Builder**: Manually triggered to build and customize VM images using Azure Image Builder
+
+#### Image Building Pipeline
+
+The image building pipeline allows you to customize VM images with specific configurations, software installations, or security hardening. It uses Azure Image Builder to create reproducible images stored in a Shared Image Gallery.
+
+To trigger the image build:
+1. Go to the GitHub repository Actions tab
+2. Select "Image Builder CI/CD" workflow
+3. Click "Run workflow"
+4. Provide the build script and version
+5. The pipeline will:
+   - Apply Terraform infrastructure
+   - Submit the image build job
+   - Wait for completion
+   - Make the custom image available for VM deployment
+
+## Outputs
+
+After deployment, the following outputs are available:
+
+- VNet and subnet details
+- VM and NIC information
+- Key Vault and NSG IDs
+- Log Analytics workspace details
+- Dashboard and monitoring extension info
+- Image builder resources (if enabled)
+
+## Security
+
+- Randomly generated VM passwords stored in Key Vault
+- NSG rules for SSH, RDP, HTTP, HTTPS access
+- Azure Monitor agent for comprehensive logging
+
+## Contributing
+
+1. Create a feature branch
+2. Make changes
+3. Submit a pull request
+4. CI/CD will validate and plan the changes
+5. Merge to main triggers deployment
+
+## License
+
+[Add your license here]

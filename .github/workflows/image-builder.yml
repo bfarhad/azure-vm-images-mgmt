@@ -1,0 +1,64 @@
+name: 'Image Builder CI/CD'
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_script:
+        description: 'Inline script for image customization'
+        required: true
+        default: |
+          #!/bin/bash
+          echo "Customizing image..."
+          # Add your customization commands here
+      image_version:
+        description: 'Version for the built image'
+        required: false
+        default: '1.0.0'
+
+env:
+  TF_VERSION: '1.5.0'
+  WORKING_DIR: './terrafrom'
+
+jobs:
+  build-image:
+    name: 'Build Custom Image'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Terraform Plan
+      run: terraform plan -var-file=terraform.tfvars -out=tfplan
+      working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
+      working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Submit Image Build
+      run: |
+        TEMPLATE_NAME=$(terraform output -raw image_builder_template_name 2>/dev/null || echo "${{ github.event.repository.name }}-template")
+        RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "rg-${{ github.event.repository.name }}")
+        az image builder run --name $TEMPLATE_NAME --resource-group $RG_NAME
+      working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Wait for Image Build Completion
+      run: |
+        TEMPLATE_NAME=$(terraform output -raw image_builder_template_name 2>/dev/null || echo "${{ github.event.repository.name }}-template")
+        RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "rg-${{ github.event.repository.name }}")
+        az image builder wait --name $TEMPLATE_NAME --resource-group $RG_NAME --custom "lastRunStatus.runState=='Succeeded'"
