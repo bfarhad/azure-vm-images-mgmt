@@ -29,11 +29,13 @@ from diagrams.azure.database import SQLDatabases
 from diagrams.azure.storage import BlobStorage
 from diagrams.onprem.client import Users
 from diagrams.azure.security import KeyVaults # Replace with the correct name found
+from diagrams.azure.compute import ImageTemplates, SharedImageGalleries
+from diagrams.onprem.client import Client
 
 
 
 # Create a diagram context
-with Diagram("My Azure Architecture", show=True) as diag:
+with Diagram("My Azure Architecture", filename="images/my_azure_architecture", show=False) as diag:
     # Use the DDOSProtectionPlans within the diagram context
     ddos = DDOSProtectionPlans("DDoS Protection Plans")
 # Create a high-level architecture diagram
@@ -61,8 +63,11 @@ with Diagram("My Azure Architecture", show=True) as diag:
             vm1 = VM("Azure VM 1")
             vm2 = VM("Azure VM 2")
             storage = BlobStorage("Storage")
-            
+            img_builder = ImageTemplates("Image Builder")
+            gallery = SharedImageGalleries("Shared Image Gallery")
+
             vm1 - vm2 >> vmss >> storage
+            img_builder >> gallery >> vmss
         
         # Identity & Access Management
         with Cluster("Identity & Access Management"):
@@ -78,6 +83,8 @@ with Diagram("My Azure Architecture", show=True) as diag:
         # CI/CD & Automation
         with Cluster("Automation & DevOps"):
             devops = Devops("Azure DevOps")
+            automation = Client("Automation Account")
+            devops >> automation
 
         # Data Layer
         database = SQLDatabases("Azure SQL Database")
@@ -86,4 +93,5 @@ with Diagram("My Azure Architecture", show=True) as diag:
         user >> vnet >> vmss >> database
         vmss >> ad >> keyvault
         vmss >> monitor >> logs >> cost
-        vmss >> devops
+        vmss >> devops >> automation
+        devops >> img_builder >> gallery >> vmss
