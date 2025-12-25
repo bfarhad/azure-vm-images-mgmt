@@ -16,7 +16,7 @@ os_type = "Linux"
 # Image Configuration
 image_publisher = "Canonical"
 image_offer     = "UbuntuServer"
-image_sku       = "20.04-LTS"
+image_sku       = "16.04-LTS"
 image_version   = "latest"
 
 # Image Builder
@@ -24,18 +24,18 @@ enable_image_builder = true
 build_image_name     = "java-tomcat-image"
 base_image_publisher = "Canonical"
 base_image_offer     = "UbuntuServer"
-base_image_sku       = "20.04-LTS"
+base_image_sku       = "16.04-LTS"
 build_script         = <<-EOF
   #!/bin/bash
-  echo "Customizing image with Apache Tomcat 10"
+  echo "Customizing image with Apache Tomcat 9"
   # Update package list
   apt-get update
   # Install OpenJDK
-  apt-get install -y openjdk-11-jdk
-  # Download and install Apache Tomcat 10
-  wget https://downloads.apache.org/tomcat/tomcat-10/v10.1.17/bin/apache-tomcat-10.1.17.tar.gz
-  tar -xzf apache-tomcat-10.1.17.tar.gz
-  mv apache-tomcat-10.1.17 /opt/tomcat
+  apt-get install -y openjdk-8-jdk
+  # Download and install Apache Tomcat 9
+  wget https://downloads.apache.org/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz
+  tar -xzf apache-tomcat-9.0.85.tar.gz
+  mv apache-tomcat-9.0.85 /opt/tomcat
   # Set environment variables
   echo 'export CATALINA_HOME=/opt/tomcat' >> /etc/profile
   echo 'export PATH=$PATH:$CATALINA_HOME/bin' >> /etc/profile
