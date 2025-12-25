@@ -70,6 +70,11 @@ jobs:
         echo "Subscription ID: $SUBSCRIPTION_ID"
         echo "TF_VAR_storage_account_name=${{ inputs.storage_account_name }}" >> $GITHUB_ENV
 
+    - name: Get Storage Account Key
+      run: |
+        STORAGE_KEY=$(az storage account keys list --resource-group global-management-RG --account-name ${{ inputs.storage_account_name }} --query '[0].value' -o tsv)
+        echo "ARM_ACCESS_KEY=$STORAGE_KEY" >> $GITHUB_ENV
+
     - name: Terraform Format
       run: terraform fmt -check -diff
 
