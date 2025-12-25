@@ -16,6 +16,11 @@ on:
         options:
           - linux
           - windows
+      kv_name:
+        description: 'Azure Key Vault name'
+        required: true
+        default: 'rgdevazurevmimagesmgmtkv'
+        type: string    
 
 env:
   RESOURCE_GROUP: 'rg-dev-azure-vm-images-mgmt'
@@ -34,26 +39,38 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Setup PowerShell
-      run: |
-        Install-Module -Name Az -AllowClobber -Force
-        Import-Module Az
-
+    
     - name: Get Public IP
       run: |
         $publicIp = (Invoke-WebRequest -Uri "https://api.ipify.org").Content
         echo "PUBLIC_IP=$publicIp" >> $env:GITHUB_ENV
 
-    - name: Whitelist IP in Key Vault
+    - name: Update Key Vault Network ACLs
       run: |
-        $kvName = "rgdevazurevmimagesmgmtkv"
-        if (az keyvault show --name $kvName --query name -o tsv 2>$null) {
-          Write-Host "Key Vault $kvName exists. Adding IP $env:PUBLIC_IP to allowed IPs."
-          az keyvault network-rule add --name $kvName --ip-address "$env:PUBLIC_IP/32"
-        } else {
-          Write-Host "Key Vault $kvName does not exist. Skipping IP whitelisting."
-        }
+        KV_NAME="${{ inputs.kv_name }}"
+        if [ -z "$KV_NAME" ]; then
+          KV_NAME="rgdevazurevmimagesmgmtkv"
+        fi
+        if az keyvault show --name $KV_NAME --query name -o tsv 2>/dev/null; then
+          echo "Key Vault $KV_NAME exists. Adding IP $PUBLIC_IP to allowed IPs."
+          az keyvault network-rule add --name $KV_NAME --ip-address $PUBLIC_IP/32
+        else
+          echo "Key Vault $KV_NAME does not exist. Skipping IP whitelisting."
+        fi
+
+    - name: Create Image Version
+      run: |
+        $endOfLife = (Get-Date).AddMonths(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
+        $sourceImageId = "/subscriptions/$env:ARM_SUBSCRIPTION_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Compute/images/${{ inputs.image_name }}-managed"
+        New-AzGalleryImageVersion `
+          -ResourceGroupName ${{ env.RESOURCE_GROUP }} `
+          -GalleryName ${{ env.GALLERY_NAME }} `
+          -GalleryImageDefinitionName ${{ inputs.image_name }} `
+          -Name "latest" `
+          -Location ${{ env.LOCATION }} `
+          -SourceImageId $sourceImageId `
+          -EndOfLifeDate $endOfLife `
+          -TargetRegion @{Name="${{ env.LOCATION }}";RegionalReplicaCount=1}
 
     - name: Get Image ID
       run: |
