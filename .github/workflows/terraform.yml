@@ -77,7 +77,11 @@ jobs:
 
     - name: Get Storage Account Key
       run: |
-        STORAGE_KEY=$(az storage account keys list --resource-group global-management-RG --account-name $TF_VAR_storage_account_name --query '[0].value' -o tsv)
+        STORAGE_ACCOUNT_NAME="${{ inputs.storage_account_name }}"
+        if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+          STORAGE_ACCOUNT_NAME="clwetfstate"
+        fi
+        STORAGE_KEY=$(az storage account keys list --resource-group global-management-RG --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
         echo "ARM_ACCESS_KEY=$STORAGE_KEY" >> $GITHUB_ENV
 
     - name: Terraform Format
