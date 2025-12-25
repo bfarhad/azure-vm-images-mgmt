@@ -74,7 +74,8 @@ jobs:
       if: env.MANAGED_IMAGE_EXISTS == 'true'
       run: |
         end_of_life=$(date -u -d '+1 month' +%Y-%m-%d)
-        source_image_id="/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Compute/images/${{ inputs.image_name }}-managed"
+        subscription_id=$(az account show --query id -o tsv)
+        source_image_id="/subscriptions/$subscription_id/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Compute/images/${{ inputs.image_name }}-managed"
         az sig image-version create \
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --gallery-name ${{ env.GALLERY_NAME }} \
