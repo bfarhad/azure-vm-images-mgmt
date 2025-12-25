@@ -19,17 +19,21 @@ module "networking" {
   tags                = var.tags
 }
 
-resource "random_password" "admin_password" {
-  length           = 16
-  special          = true
-  override_special = "!@#$%^&*()"
+module "security" {
+  source              = "./modules/security"
+  keyvault_name       = local.keyvault_name
+  location            = var.location
+  resource_group_name = local.resource_group_name
+  tags                = var.tags
+  admin_username      = var.admin_username
+  admin_password      = null
+  allowed_ip          = var.allowed_ip
 }
 
 module "compute" {
   source              = "./modules/compute"
   vm_size             = var.vm_size
   admin_username      = var.admin_username
-  admin_password      = random_password.admin_password.result
   subnet_id           = module.networking.subnet_id
   location            = var.location
   resource_group_name = local.resource_group_name
@@ -40,17 +44,7 @@ module "compute" {
   image_version       = var.image_version
   enable_custom_image = var.enable_image_builder
   custom_image_id     = var.enable_image_builder ? module.image-builder[0].image_id : null
-}
-
-module "security" {
-  source              = "./modules/security"
-  keyvault_name       = local.keyvault_name
-  location            = var.location
-  resource_group_name = local.resource_group_name
-  tags                = var.tags
-  admin_username      = var.admin_username
-  admin_password      = random_password.admin_password.result
-  allowed_ip          = var.allowed_ip
+  key_vault_id        = module.security.key_vault_id
 }
 module "monitoring" {
   source                  = "./modules/monitoring"

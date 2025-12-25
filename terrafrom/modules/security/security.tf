@@ -98,6 +98,7 @@ resource "azurerm_key_vault_secret" "admin_username" {
 }
 
 resource "azurerm_key_vault_secret" "admin_password" {
+  count        = var.admin_password != null ? 1 : 0
   name         = "admin-password"
   value        = var.admin_password
   key_vault_id = azurerm_key_vault.kv.id

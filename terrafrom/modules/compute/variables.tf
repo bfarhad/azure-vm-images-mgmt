@@ -6,9 +6,6 @@ variable "admin_username" {
   type = string
 }
 
-variable "admin_password" {
-  type = string
-}
 
 variable "subnet_id" {
   type = string
@@ -50,4 +47,17 @@ variable "enable_custom_image" {
 variable "custom_image_id" {
   type = string
   default = null
+}
+
+variable "key_vault_id" {
+  type = string
+}
+
+variable "os_type" {
+  type = string
+  default = "linux"
+  validation {
+    condition = contains(["linux", "windows"], var.os_type)
+    error_message = "os_type must be either 'linux' or 'windows'."
+  }
 }

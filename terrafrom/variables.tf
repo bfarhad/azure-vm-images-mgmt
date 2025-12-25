@@ -146,11 +146,6 @@ variable "admin_username" {
   default = "adminuser"
 }
 
-variable "admin_password" {
-  type = string
-  default = "ChangeMe123!"
-  description = "Admin password for the VM (will be overridden by random password)"
-}
 
 variable "keyvault_name" {
   type = string
