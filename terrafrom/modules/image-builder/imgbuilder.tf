@@ -49,6 +49,16 @@ resource "azurerm_linux_virtual_machine" "base_vm" {
   tags = var.tags
 }
 
+resource "null_resource" "stop_vm" {
+  count = var.create_base_vm ? 1 : 0
+
+  provisioner "local-exec" {
+    command = "az vm stop --resource-group ${var.resource_group_name} --name ${azurerm_linux_virtual_machine.base_vm[0].name}"
+  }
+
+  depends_on = [azurerm_linux_virtual_machine.base_vm]
+}
+
 resource "null_resource" "generalize_vm" {
   count = var.create_base_vm ? 1 : 0
 
@@ -56,7 +66,7 @@ resource "null_resource" "generalize_vm" {
     command = "az vm generalize --resource-group ${var.resource_group_name} --name ${azurerm_linux_virtual_machine.base_vm[0].name}"
   }
 
-  depends_on = [azurerm_linux_virtual_machine.base_vm]
+  depends_on = [null_resource.stop_vm]
 }
 
 resource "azurerm_image" "managed" {
@@ -66,7 +76,7 @@ resource "azurerm_image" "managed" {
   resource_group_name       = var.resource_group_name
   source_virtual_machine_id = var.create_base_vm ? azurerm_linux_virtual_machine.base_vm[0].id : var.source_vm_id
   tags                      = var.tags
-  depends_on                = [null_resource.generalize_vm, azurerm_linux_virtual_machine.base_vm]
+  depends_on                = [null_resource.generalize_vm]
 }
 
 data "azurerm_image" "managed" {
