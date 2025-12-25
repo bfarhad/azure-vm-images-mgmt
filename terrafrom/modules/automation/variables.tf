@@ -1,5 +1,5 @@
 variable "automation_account_name" {
-  type = string
+  type        = string
   description = "Name of the Azure Automation account"
 }
 

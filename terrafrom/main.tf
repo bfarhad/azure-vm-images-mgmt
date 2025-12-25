@@ -17,6 +17,12 @@ module "networking" {
   depends_on          = [azurerm_resource_group.rg]
 }
 
+resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
+  subnet_id                 = module.networking.subnet_id
+  network_security_group_id = module.security.nsg_id
+  depends_on                = [module.networking, module.security]
+}
+
 module "security" {
   source              = "./modules/security"
   keyvault_name       = local.keyvault_name
@@ -78,8 +84,10 @@ module "image-builder" {
   base_image_sku       = var.base_image_sku
   build_script         = var.build_script
   gallery_name         = local.gallery_name
+  subnet_id            = module.networking.subnet_id
+  create_base_vm       = true
 
-  depends_on = [azurerm_resource_group.rg]
+  depends_on = [azurerm_resource_group.rg, module.networking]
 }
 
 

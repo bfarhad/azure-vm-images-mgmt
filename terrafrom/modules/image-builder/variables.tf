@@ -52,3 +52,20 @@ variable "source_vm_id" {
   default     = null
   description = "The ID of the source VM to create the managed image from"
 }
+
+variable "create_base_vm" {
+  type        = bool
+  default     = false
+  description = "Whether to create a base VM from platform image for managed image"
+}
+
+variable "subnet_id" {
+  type        = string
+  description = "The subnet ID for the base VM"
+}
+
+variable "create_from_platform" {
+  type        = bool
+  default     = false
+  description = "Whether to create managed image from platform image"
+}
