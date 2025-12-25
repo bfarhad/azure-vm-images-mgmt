@@ -52,16 +52,6 @@ module "compute" {
   depends_on          = [azurerm_resource_group.rg, module.networking, module.security, module.image-builder]
 }
 
-module "monitoring" {
-  source                  = "./modules/monitoring"
-  log_analytics_workspace = local.log_analytics_workspace
-  location                = var.location
-  resource_group_name     = local.resource_group_name
-  tags                    = var.tags
-  vmss_id                 = module.compute.vmss_id
-  dashboard_name          = "${local.resource_group_name}-dashboard"
-  depends_on              = [azurerm_resource_group.rg]
-}
 
 module "automation" {
   source                  = "./modules/automation"
