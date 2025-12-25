@@ -72,6 +72,7 @@ jobs:
           --managed-image $source_image_id \
           --end-of-life-date $end_of_life \
           --target-regions "${{ env.LOCATION }}=1"
+      shell: bash
 
     - name: Get Image ID
       run: |
@@ -82,6 +83,7 @@ jobs:
           --gallery-image-version "latest" `
           --query "id" -o tsv
         echo "IMAGE_ID=$imageId" >> $env:GITHUB_ENV
+      shell: bash
 
     - name: Provision VMSS
       run: |
@@ -110,6 +112,7 @@ jobs:
             --vm-sku "Standard_B1s" `
             --location ${{ env.LOCATION }}
         }
+      shell: bash
 
     - name: Get VMSS Public IP
       run: |
@@ -118,6 +121,7 @@ jobs:
           --name "${{ env.RESOURCE_GROUP }}-pip" `
           --query "ipAddress" -o tsv
         echo "PUBLIC_IP=$publicIp" >> $env:GITHUB_ENV
+      shell: bash
 
     - name: Test Connectivity
       run: |
