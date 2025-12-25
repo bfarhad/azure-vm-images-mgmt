@@ -47,11 +47,14 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = var.enable_custom_image ? null : var.image_publisher
-    offer     = var.enable_custom_image ? null : var.image_offer
-    sku       = var.enable_custom_image ? null : var.image_sku
-    version   = var.enable_custom_image ? null : var.image_version
+  dynamic "source_image_reference" {
+    for_each = var.enable_custom_image ? [] : [1]
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
   }
 
   source_image_id = var.enable_custom_image ? var.custom_image_id : null
@@ -74,11 +77,14 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = var.enable_custom_image ? null : var.image_publisher
-    offer     = var.enable_custom_image ? null : var.image_offer
-    sku       = var.enable_custom_image ? null : var.image_sku
-    version   = var.enable_custom_image ? null : var.image_version
+  dynamic "source_image_reference" {
+    for_each = var.enable_custom_image ? [] : [1]
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
   }
 
   source_image_id = var.enable_custom_image ? var.custom_image_id : null

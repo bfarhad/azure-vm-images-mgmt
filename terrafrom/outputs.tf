@@ -105,9 +105,6 @@ output "runbook_name" {
   value = module.automation.runbook_name
 }
 
-output "image_builder_template_name" {
-  value = length(module.image-builder) > 0 ? module.image-builder[0].template_name : null
-}
 
 output "resource_group_name" {
   value = azurerm_resource_group.rg.name
