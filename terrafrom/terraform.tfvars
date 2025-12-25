@@ -16,7 +16,7 @@ os_type = "Linux"
 # Image Configuration
 image_publisher = "Canonical"
 image_offer     = "UbuntuServer"
-image_sku       = "22.04-LTS"
+image_sku       = "20.04-LTS"
 image_version   = "latest"
 
 # Image Builder
@@ -24,7 +24,7 @@ enable_image_builder = true
 build_image_name     = "java-tomcat-image"
 base_image_publisher = "Canonical"
 base_image_offer     = "UbuntuServer"
-base_image_sku       = "22.04-LTS"
+base_image_sku       = "20.04-LTS"
 build_script         = <<-EOF
   #!/bin/bash
   echo "Customizing image with Apache Tomcat 10"
