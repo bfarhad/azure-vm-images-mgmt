@@ -175,6 +175,7 @@ The GitHub Actions workflows automatically:
 
 - **Pull Requests**: Runs format, validate, and plan
 - **Push to main**: Runs full apply after validation
+- **Manual Dispatch**: Allows manual triggering of the Terraform workflow
 - **Image Builder**: Manually triggered to build and customize VM images using Azure Image Builder
 
 #### Image Building Pipeline
@@ -184,11 +185,10 @@ The image building pipeline allows you to customize VM images with specific conf
 To trigger the image build:
 1. Go to the GitHub repository Actions tab
 2. Select "Image Builder CI/CD" workflow
-3. Click "Run workflow"
-4. Provide the build script and version
-5. The pipeline will:
+3. Click "Run workflow" (manual dispatch)
+4. The pipeline will:
    - Apply Terraform infrastructure
-   - Submit the image build job
+   - Create and submit the image build job using Azure CLI
    - Wait for completion
    - Make the custom image available for VM deployment
 
