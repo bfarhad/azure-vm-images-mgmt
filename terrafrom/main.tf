@@ -1,9 +1,6 @@
 #####
-## Terraform modules management
+## Terraform modules management # main.tf (Root)
 #####
-
-# main.tf (Root)
-
 resource "azurerm_resource_group" "rg" {
   name     = local.resource_group_name
   location = var.location
@@ -17,6 +14,7 @@ module "networking" {
   location            = var.location
   resource_group_name = local.resource_group_name
   tags                = var.tags
+  depends_on          = [azurerm_resource_group.rg]
 }
 
 module "security" {
@@ -28,6 +26,7 @@ module "security" {
   admin_username      = var.admin_username
   admin_password      = null
   allowed_ip          = var.allowed_ip
+  depends_on          = [azurerm_resource_group.rg]
 }
 
 module "compute" {
@@ -45,6 +44,7 @@ module "compute" {
   enable_custom_image = var.enable_image_builder
   custom_image_id     = var.enable_image_builder ? module.image-builder[0].image_id : null
   key_vault_id        = module.security.key_vault_id
+  depends_on          = [azurerm_resource_group.rg]
 }
 module "monitoring" {
   source                  = "./modules/monitoring"
@@ -54,6 +54,7 @@ module "monitoring" {
   tags                    = var.tags
   vm_id                   = module.compute.vm_id
   dashboard_name          = "${local.resource_group_name}-dashboard"
+  depends_on              = [azurerm_resource_group.rg]
 }
 
 module "automation" {
@@ -62,6 +63,7 @@ module "automation" {
   location                = var.location
   resource_group_name     = local.resource_group_name
   tags                    = var.tags
+  depends_on              = [azurerm_resource_group.rg]
 }
 
 module "image-builder" {
