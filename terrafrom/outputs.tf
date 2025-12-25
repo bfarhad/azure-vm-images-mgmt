@@ -58,13 +58,6 @@ output "log_analytics_workspace_name" {
   value = module.monitoring.log_analytics_workspace_name
 }
 
-output "dashboard_id" {
-  value = module.monitoring.dashboard_id
-}
-
-output "dashboard_name" {
-  value = module.monitoring.dashboard_name
-}
 
 output "vm_extension_id" {
   value = module.monitoring.vm_extension_id
@@ -72,6 +65,14 @@ output "vm_extension_id" {
 
 output "vm_extension_name" {
   value = module.monitoring.vm_extension_name
+}
+
+output "dashboard_id" {
+  value = module.monitoring.dashboard_id
+}
+
+output "dashboard_name" {
+  value = module.monitoring.dashboard_name
 }
 
 # Image Builder outputs (conditional)

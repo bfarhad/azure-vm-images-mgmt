@@ -13,11 +13,3 @@ output "image_id" {
 output "image_name" {
   value = azurerm_shared_image.image.name
 }
-
-output "template_id" {
-  value = azurerm_image_template.template.id
-}
-
-output "template_name" {
-  value = azurerm_image_template.template.name
-}

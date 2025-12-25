@@ -206,7 +206,8 @@ After deployment, the following outputs are available:
 ## Security
 
 - Randomly generated VM passwords stored in Key Vault
-- NSG rules for SSH, RDP, HTTP, HTTPS access
+- NSG rules restrict SSH (port 22) and RDP (port 3389) access to the pipeline user's public IP only
+- Key Vault network ACLs allow access only from the pipeline user's public IP
 - Azure Monitor agent for comprehensive logging
 
 ## Contributing

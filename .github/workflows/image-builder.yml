@@ -42,18 +42,59 @@ jobs:
       run: terraform init
       working-directory: ${{ env.WORKING_DIR }}
 
+    - name: Get Public IP
+      run: |
+        PUBLIC_IP=$(curl -s https://api.ipify.org)
+        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+        echo "Allowed IP: $PUBLIC_IP"
+
     - name: Terraform Plan
-      run: terraform plan -var-file=terraform.tfvars -out=tfplan
+      run: terraform plan -var-file=terraform.tfvars -var="allowed_ip=$PUBLIC_IP/32" -out=tfplan
       working-directory: ${{ env.WORKING_DIR }}
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve -var="allowed_ip=$PUBLIC_IP/32" tfplan
       working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Create Image Template
+      run: |
+        RG_NAME=$(terraform output -raw resource_group_name)
+        GALLERY_NAME=$(terraform output -raw gallery_name)
+        IMAGE_NAME=$(terraform output -raw built_image_name)
+        TEMPLATE_NAME="${IMAGE_NAME}-template"
+        az image builder create --name $TEMPLATE_NAME --resource-group $RG_NAME --image-template '{
+          "location": "West Europe",
+          "properties": {
+            "source": {
+              "type": "PlatformImage",
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "22.04-LTS",
+              "version": "latest"
+            },
+            "customize": [
+              {
+                "type": "Shell",
+                "name": "InstallTomcat",
+                "inline": ["apt-get update", "apt-get install -y openjdk-11-jdk", "wget https://downloads.apache.org/tomcat/tomcat-10/v10.1.17/bin/apache-tomcat-10.1.17.tar.gz", "tar -xzf apache-tomcat-10.1.17.tar.gz", "mv apache-tomcat-10.1.17 /opt/tomcat", "echo export CATALINA_HOME=/opt/tomcat >> /etc/profile", "echo export PATH=$PATH:$CATALINA_HOME/bin >> /etc/profile", "cat > /etc/systemd/system/tomcat.service << EOL\n[Unit]\nDescription=Apache Tomcat\nAfter=network.target\n\n[Service]\nType=forking\nUser=root\nGroup=root\nEnvironment=CATALINA_HOME=/opt/tomcat\nEnvironment=CATALINA_BASE=/opt/tomcat\nExecStart=/opt/tomcat/bin/startup.sh\nExecStop=/opt/tomcat/bin/shutdown.sh\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target\nEOL", "systemctl enable tomcat", "echo Tomcat installation completed"]
+              }
+            ],
+            "distribute": [
+              {
+                "type": "SharedImage",
+                "galleryImageId": "/subscriptions/{subscriptionId}/resourceGroups/'$RG_NAME'/providers/Microsoft.Compute/galleries/'$GALLERY_NAME'/images/'$IMAGE_NAME'",
+                "runOutputName": "10.1.17",
+                "replicationRegions": ["West Europe"]
+              }
+            ]
+          }
+        }'
 
     - name: Submit Image Build
       run: |
-        TEMPLATE_NAME=$(terraform output -raw image_builder_template_name 2>/dev/null || echo "${{ github.event.repository.name }}-template")
-        RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "rg-${{ github.event.repository.name }}")
+        RG_NAME=$(terraform output -raw resource_group_name)
+        IMAGE_NAME=$(terraform output -raw built_image_name)
+        TEMPLATE_NAME="${IMAGE_NAME}-template"
         az image builder run --name $TEMPLATE_NAME --resource-group $RG_NAME
       working-directory: ${{ env.WORKING_DIR }}
 

@@ -15,11 +15,11 @@ variable "tags" {
 }
 
 variable "vm_id" {
-  type = string
+  type        = string
   description = "The ID of the VM to monitor"
 }
 
 variable "dashboard_name" {
-  type = string
+  type        = string
   description = "The name of the monitoring dashboard"
 }

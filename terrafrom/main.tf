@@ -3,14 +3,20 @@
 #####
 
 # main.tf (Root)
-module "networking" {
-  source = "./modules/networking"
-  vnet_name = local.vnet_name
-  vnet_cidr = var.vnet_cidr
-  subnet_cidr = var.subnet_cidr
+
+resource "azurerm_resource_group" "rg" {
+  name     = local.resource_group_name
   location = var.location
+  tags     = var.tags
+}
+module "networking" {
+  source              = "./modules/networking"
+  vnet_name           = local.vnet_name
+  vnet_cidr           = var.vnet_cidr
+  subnet_cidr         = var.subnet_cidr
+  location            = var.location
   resource_group_name = local.resource_group_name
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "random_password" "admin_password" {
@@ -20,61 +26,62 @@ resource "random_password" "admin_password" {
 }
 
 module "compute" {
-  source = "./modules/compute"
-  vm_size = var.vm_size
-  admin_username = var.admin_username
-  admin_password = random_password.admin_password.result
-  subnet_id = module.networking.subnet_id
-  location = var.location
+  source              = "./modules/compute"
+  vm_size             = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = random_password.admin_password.result
+  subnet_id           = module.networking.subnet_id
+  location            = var.location
   resource_group_name = local.resource_group_name
-  tags = var.tags
-  image_publisher = var.image_publisher
-  image_offer = var.image_offer
-  image_sku = var.image_sku
-  image_version = var.image_version
+  tags                = var.tags
+  image_publisher     = var.image_publisher
+  image_offer         = var.image_offer
+  image_sku           = var.image_sku
+  image_version       = var.image_version
   enable_custom_image = var.enable_image_builder
-  custom_image_id = var.enable_image_builder ? module.image-builder[0].image_id : null
+  custom_image_id     = var.enable_image_builder ? module.image-builder[0].image_id : null
 }
 
 module "security" {
-  source = "./modules/security"
-  keyvault_name = local.keyvault_name
-  location = var.location
+  source              = "./modules/security"
+  keyvault_name       = local.keyvault_name
+  location            = var.location
   resource_group_name = local.resource_group_name
-  tags = var.tags
-  admin_username = var.admin_username
-  admin_password = random_password.admin_password.result
+  tags                = var.tags
+  admin_username      = var.admin_username
+  admin_password      = random_password.admin_password.result
+  allowed_ip          = var.allowed_ip
 }
 module "monitoring" {
-  source = "./modules/monitoring"
+  source                  = "./modules/monitoring"
   log_analytics_workspace = local.log_analytics_workspace
-  location = var.location
-  resource_group_name = local.resource_group_name
-  tags = var.tags
-  vm_id = module.compute.vm_id
-  dashboard_name = "${local.resource_group_name}-dashboard"
+  location                = var.location
+  resource_group_name     = local.resource_group_name
+  tags                    = var.tags
+  vm_id                   = module.compute.vm_id
+  dashboard_name          = "${local.resource_group_name}-dashboard"
 }
 
 module "automation" {
-  source = "./modules/automation"
+  source                  = "./modules/automation"
   automation_account_name = var.automation_account_name
-  location = var.location
-  resource_group_name = local.resource_group_name
-  tags = var.tags
+  location                = var.location
+  resource_group_name     = local.resource_group_name
+  tags                    = var.tags
 }
 
 module "image-builder" {
-  count = var.enable_image_builder ? 1 : 0
-  source = "./modules/image-builder"
-  location = var.location
-  resource_group_name = local.resource_group_name
-  tags = var.tags
-  build_image_name = var.build_image_name
+  count                = var.enable_image_builder ? 1 : 0
+  source               = "./modules/image-builder"
+  location             = var.location
+  resource_group_name  = local.resource_group_name
+  tags                 = var.tags
+  build_image_name     = var.build_image_name
   base_image_publisher = var.base_image_publisher
-  base_image_offer = var.base_image_offer
-  base_image_sku = var.base_image_sku
-  build_script = var.build_script
-  gallery_name = local.gallery_name
+  base_image_offer     = var.base_image_offer
+  base_image_sku       = var.base_image_sku
+  build_script         = var.build_script
+  gallery_name         = local.gallery_name
 }
 
 

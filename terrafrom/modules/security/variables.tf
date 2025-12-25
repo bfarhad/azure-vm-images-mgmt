@@ -21,3 +21,8 @@ variable "admin_username" {
 variable "admin_password" {
   type = string
 }
+
+variable "allowed_ip" {
+  type        = string
+  description = "The public IP address allowed to access the VM via SSH and RDP"
+}

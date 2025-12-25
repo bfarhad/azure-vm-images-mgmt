@@ -49,8 +49,14 @@ jobs:
     - name: Terraform Validate
       run: terraform validate
 
+    - name: Get Public IP
+      run: |
+        PUBLIC_IP=$(curl -s https://api.ipify.org)
+        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+        echo "Allowed IP: $PUBLIC_IP"
+
     - name: Terraform Plan
-      run: terraform plan -var-file=terraform.tfvars -out=tfplan
+      run: terraform plan -var-file=terraform.tfvars -var="allowed_ip=$PUBLIC_IP/32" -out=tfplan
       continue-on-error: true
 
     - name: Update Pull Request
@@ -87,4 +93,4 @@ jobs:
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve -var="allowed_ip=$PUBLIC_IP/32" tfplan
