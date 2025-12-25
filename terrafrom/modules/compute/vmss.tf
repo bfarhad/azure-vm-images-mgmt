@@ -1,12 +1,12 @@
 # modules/compute/main.tf
 resource "tls_private_key" "ssh" {
-  count     = var.os_type == "linux" ? 1 : 0
+  count     = lower(var.os_type) == "linux" ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "random_password" "admin_password" {
-  count   = var.os_type == "windows" ? 1 : 0
+  count   = lower(var.os_type) == "windows" ? 1 : 0
   length  = 16
   special = true
   upper   = true
@@ -15,21 +15,21 @@ resource "random_password" "admin_password" {
 }
 
 resource "azurerm_key_vault_secret" "ssh_private_key" {
-  count        = var.os_type == "linux" ? 1 : 0
+  count        = lower(var.os_type) == "linux" ? 1 : 0
   name         = "ssh-private-key"
   value        = tls_private_key.ssh[0].private_key_pem
   key_vault_id = var.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "admin_password" {
-  count        = var.os_type == "windows" ? 1 : 0
+  count        = lower(var.os_type) == "windows" ? 1 : 0
   name         = "admin-password"
   value        = random_password.admin_password[0].result
   key_vault_id = var.key_vault_id
 }
 
 resource "azurerm_linux_virtual_machine_scale_set" "linux_vmss" {
-  count               = var.os_type == "linux" ? 1 : 0
+  count               = lower(var.os_type) == "linux" ? 1 : 0
   name                = "${var.resource_group_name}-vmss"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -69,7 +69,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vmss" {
 }
 
 resource "azurerm_windows_virtual_machine_scale_set" "windows_vmss" {
-  count               = var.os_type == "windows" ? 1 : 0
+  count               = lower(var.os_type) == "windows" ? 1 : 0
   name                = "${var.resource_group_name}-vmss"
   location            = var.location
   resource_group_name = var.resource_group_name
