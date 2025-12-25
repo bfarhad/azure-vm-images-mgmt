@@ -7,12 +7,12 @@ output "log_analytics_workspace_name" {
 }
 
 
-output "vm_extension_id" {
-  value = azurerm_virtual_machine_extension.azure_monitor_agent.id
+output "vmss_extension_id" {
+  value = azurerm_virtual_machine_scale_set_extension.azure_monitor_agent.id
 }
 
-output "vm_extension_name" {
-  value = azurerm_virtual_machine_extension.azure_monitor_agent.name
+output "vmss_extension_name" {
+  value = azurerm_virtual_machine_scale_set_extension.azure_monitor_agent.name
 }
 
 output "dashboard_id" {

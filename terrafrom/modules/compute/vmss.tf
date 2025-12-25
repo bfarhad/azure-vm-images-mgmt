@@ -28,66 +28,78 @@ resource "azurerm_key_vault_secret" "admin_password" {
   key_vault_id = var.key_vault_id
 }
 
-resource "azurerm_linux_virtual_machine" "linux_vm" {
+resource "azurerm_linux_virtual_machine_scale_set" "linux_vmss" {
   count               = var.os_type == "linux" ? 1 : 0
-  name                = "${var.resource_group_name}-vm"
+  name                = "${var.resource_group_name}-vmss"
   location            = var.location
   resource_group_name = var.resource_group_name
-  size                = var.vm_size
+  sku                 = var.vm_size
+  instances           = 0  # Empty, ready for use
   admin_username      = var.admin_username
-  network_interface_ids = [azurerm_network_interface.nic.id]
 
   admin_ssh_key {
     username   = var.admin_username
     public_key = tls_private_key.ssh[0].public_key_openssh
   }
 
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  source_image_reference {
+    publisher = var.image_publisher
+    offer     = var.image_offer
+    sku       = var.image_sku
+    version   = var.image_version
   }
 
-  dynamic "source_image_reference" {
-    for_each = var.enable_custom_image ? [] : [1]
-    content {
-      publisher = var.image_publisher
-      offer     = var.image_offer
-      sku       = var.image_sku
-      version   = var.image_version
+  os_disk {
+    storage_account_type = "Standard_LRS"
+    caching              = "ReadWrite"
+  }
+
+  network_interface {
+    name    = "${var.resource_group_name}-nic"
+    primary = true
+
+    ip_configuration {
+      name      = "${var.resource_group_name}-ipconfig"
+      primary   = true
+      subnet_id = var.subnet_id
     }
   }
-
-  source_image_id = var.enable_custom_image ? var.custom_image_id : null
 
   tags = var.tags
 }
 
-resource "azurerm_windows_virtual_machine" "windows_vm" {
+resource "azurerm_windows_virtual_machine_scale_set" "windows_vmss" {
   count               = var.os_type == "windows" ? 1 : 0
-  name                = "${var.resource_group_name}-vm"
+  name                = "${var.resource_group_name}-vmss"
   location            = var.location
   resource_group_name = var.resource_group_name
-  size                = var.vm_size
+  sku                 = var.vm_size
+  instances           = 0  # Empty, ready for use
   admin_username      = var.admin_username
   admin_password      = random_password.admin_password[0].result
-  network_interface_ids = [azurerm_network_interface.nic.id]
+
+  source_image_reference {
+    publisher = var.image_publisher
+    offer     = var.image_offer
+    sku       = var.image_sku
+    version   = var.image_version
+  }
 
   os_disk {
-    caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    caching              = "ReadWrite"
   }
 
-  dynamic "source_image_reference" {
-    for_each = var.enable_custom_image ? [] : [1]
-    content {
-      publisher = var.image_publisher
-      offer     = var.image_offer
-      sku       = var.image_sku
-      version   = var.image_version
+  network_interface {
+    name    = "${var.resource_group_name}-nic"
+    primary = true
+
+    ip_configuration {
+      name      = "${var.resource_group_name}-ipconfig"
+      primary   = true
+      subnet_id = var.subnet_id
     }
   }
-
-  source_image_id = var.enable_custom_image ? var.custom_image_id : null
 
   tags = var.tags
 }

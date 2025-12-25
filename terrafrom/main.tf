@@ -29,13 +29,31 @@ module "security" {
   depends_on          = [azurerm_resource_group.rg]
 }
 
+module "compute" {
+  source              = "./modules/compute"
+  vm_size             = var.vm_size
+  admin_username      = var.admin_username
+  subnet_id           = module.networking.subnet_id
+  location            = var.location
+  resource_group_name = local.resource_group_name
+  tags                = var.tags
+  image_publisher     = var.image_publisher
+  image_offer         = var.image_offer
+  image_sku           = var.image_sku
+  image_version       = var.image_version
+  enable_custom_image = var.enable_image_builder
+  custom_image_id     = var.enable_image_builder ? module.image-builder[0].image_id : null
+  key_vault_id        = module.security.key_vault_id
+  depends_on          = [azurerm_resource_group.rg, module.networking, module.security, module.image-builder]
+}
+
 module "monitoring" {
   source                  = "./modules/monitoring"
   log_analytics_workspace = local.log_analytics_workspace
   location                = var.location
   resource_group_name     = local.resource_group_name
   tags                    = var.tags
-  vm_id                   = module.compute.vm_id
+  vmss_id                 = module.compute.vmss_id
   dashboard_name          = "${local.resource_group_name}-dashboard"
   depends_on              = [azurerm_resource_group.rg]
 }
@@ -65,23 +83,7 @@ module "image-builder" {
   depends_on = [azurerm_resource_group.rg]
 }
 
-module "compute" {
-  source              = "./modules/compute"
-  vm_size             = var.vm_size
-  admin_username      = var.admin_username
-  subnet_id           = module.networking.subnet_id
-  location            = var.location
-  resource_group_name = local.resource_group_name
-  tags                = var.tags
-  image_publisher     = var.image_publisher
-  image_offer         = var.image_offer
-  image_sku           = var.image_sku
-  image_version       = var.image_version
-  enable_custom_image = var.enable_image_builder
-  custom_image_id     = var.enable_image_builder ? module.image-builder[0].image_id : null
-  key_vault_id        = module.security.key_vault_id
-  depends_on          = [azurerm_resource_group.rg, module.networking, module.security, module.image-builder]
-}
+
 
 
 

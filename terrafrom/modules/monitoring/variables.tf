@@ -14,9 +14,9 @@ variable "tags" {
   type = map(string)
 }
 
-variable "vm_id" {
+variable "vmss_id" {
   type        = string
-  description = "The ID of the VM to monitor"
+  description = "The ID of the VMSS to monitor"
 }
 
 variable "dashboard_name" {

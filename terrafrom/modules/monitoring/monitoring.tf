@@ -50,13 +50,13 @@ DASHBOARD
 }
 
 
-resource "azurerm_virtual_machine_extension" "azure_monitor_agent" {
-  name                       = "AzureMonitorLinuxAgent"
-  virtual_machine_id         = var.vm_id
-  publisher                  = "Microsoft.Azure.Monitor"
-  type                       = "AzureMonitorLinuxAgent"
-  type_handler_version       = "1.0"
-  auto_upgrade_minor_version = true
+resource "azurerm_virtual_machine_scale_set_extension" "azure_monitor_agent" {
+  name                         = "AzureMonitorLinuxAgent"
+  virtual_machine_scale_set_id = var.vmss_id
+  publisher                    = "Microsoft.Azure.Monitor"
+  type                         = "AzureMonitorLinuxAgent"
+  type_handler_version         = "1.0"
+  auto_upgrade_minor_version   = true
 
   settings = <<SETTINGS
     {
@@ -69,6 +69,4 @@ SETTINGS
       "workspaceKey": "${azurerm_log_analytics_workspace.log.primary_shared_key}"
     }
 PROTECTED_SETTINGS
-
-  tags = var.tags
 }

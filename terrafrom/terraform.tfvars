@@ -20,7 +20,7 @@ image_sku       = "22.04-LTS"
 image_version   = "latest"
 
 # Image Builder
-enable_image_builder = false
+enable_image_builder = true
 build_image_name     = "java-tomcat-image"
 base_image_publisher = "Canonical"
 base_image_offer     = "UbuntuServer"

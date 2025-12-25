@@ -16,12 +16,12 @@ output "subnet_name" {
 }
 
 # Compute outputs
-output "vm_id" {
-  value = module.compute.vm_id
+output "vmss_id" {
+  value = module.compute.vmss_id
 }
 
-output "vm_name" {
-  value = module.compute.vm_name
+output "vmss_name" {
+  value = module.compute.vmss_name
 }
 
 output "nic_id" {
@@ -59,12 +59,12 @@ output "log_analytics_workspace_name" {
 }
 
 
-output "vm_extension_id" {
-  value = module.monitoring.vm_extension_id
+output "vmss_extension_id" {
+  value = module.monitoring.vmss_extension_id
 }
 
-output "vm_extension_name" {
-  value = module.monitoring.vm_extension_name
+output "vmss_extension_name" {
+  value = module.monitoring.vmss_extension_name
 }
 
 output "dashboard_id" {
