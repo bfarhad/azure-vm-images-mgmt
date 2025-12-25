@@ -142,6 +142,11 @@ variable "admin_username" {
   default = "adminuser"
 }
 
+variable "subscription_id" {
+  type        = string
+  description = "The Azure subscription ID"
+}
+
 variable "location" {
   type    = string
   default = "West Europe"

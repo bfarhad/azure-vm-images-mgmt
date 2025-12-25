@@ -77,19 +77,19 @@ output "dashboard_name" {
 
 # Image Builder outputs (conditional)
 output "gallery_id" {
-  value = var.enable_image_builder ? module.image-builder[0].gallery_id : null
+  value = length(module.image-builder) > 0 ? module.image-builder[0].gallery_id : null
 }
 
 output "gallery_name" {
-  value = var.enable_image_builder ? module.image-builder[0].gallery_name : null
+  value = length(module.image-builder) > 0 ? module.image-builder[0].gallery_name : null
 }
 
 output "built_image_id" {
-  value = var.enable_image_builder ? module.image-builder[0].image_id : null
+  value = length(module.image-builder) > 0 ? module.image-builder[0].image_id : null
 }
 
 output "built_image_name" {
-  value = var.enable_image_builder ? module.image-builder[0].image_name : null
+  value = length(module.image-builder) > 0 ? module.image-builder[0].image_name : null
 }
 
 # Automation outputs
@@ -106,7 +106,7 @@ output "runbook_name" {
 }
 
 output "image_builder_template_name" {
-  value = var.enable_image_builder ? module.image-builder[0].template_name : null
+  value = length(module.image-builder) > 0 ? module.image-builder[0].template_name : null
 }
 
 output "resource_group_name" {
