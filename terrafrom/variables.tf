@@ -142,11 +142,6 @@ variable "admin_username" {
   default = "adminuser"
 }
 
-
-variable "log_analytics_workspace" {
-  type = string
-}
-
 variable "location" {
   type    = string
   default = "West Europe"
