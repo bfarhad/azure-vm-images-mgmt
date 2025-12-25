@@ -47,16 +47,18 @@ jobs:
 
     - name: Update Key Vault Network ACLs
       run: |
-        KV_NAME="${{ inputs.kv_name }}"
-        if [ -z "$KV_NAME" ]; then
-          KV_NAME="rgdevazurevmimagesmgmtkv"
-        fi
-        if az keyvault show --name $KV_NAME --query name -o tsv 2>/dev/null; then
-          echo "Key Vault $KV_NAME exists. Adding IP $PUBLIC_IP to allowed IPs."
-          az keyvault network-rule add --name $KV_NAME --ip-address $PUBLIC_IP/32
-        else
-          echo "Key Vault $KV_NAME does not exist. Skipping IP whitelisting."
-        fi
+        $KV_NAME = "${{ inputs.kv_name }}"
+        if ($KV_NAME -eq "") {
+          $KV_NAME = "rgdevazurevmimagesmgmtkv"
+        }
+        $kvExists = az keyvault show --name $KV_NAME --query name -o tsv 2>$null
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "Key Vault $KV_NAME exists. Adding IP $env:PUBLIC_IP to allowed IPs."
+          az keyvault network-rule add --name $KV_NAME --ip-address "$env:PUBLIC_IP/32"
+        } else {
+          Write-Host "Key Vault $KV_NAME does not exist. Skipping IP whitelisting."
+        }
+      shell: pwsh
 
     - name: Create Image Version
       run: |
