@@ -1,6 +1,6 @@
 # Azure VM Images Management Infrastructure
 
-This repository contains Terraform code to provision Azure infrastructure for VM image management, including networking, compute, security, monitoring, and optional image building capabilities.
+This repository contains Terraform code to provision Azure infrastructure for VM image management, including networking, compute, security, monitoring, and optional image building capabilities. It features secure credential management with SSH keys for Linux VMs and strong passwords for Windows VMs, all stored in Azure Key Vault. Infrastructure is deployed as Virtual Machine Scale Sets (VMSS) for scalability.
 
 ## Proposed Azure Cloud Architecture Solution
 
@@ -12,12 +12,12 @@ The proposed solution is a highly available, secure, and automated Azure cloud i
 
 ## Key Components & Design
 
-A. Compute Layer – Azure Virtual Machines (VMs) & Workload Customization
-   Azure Virtual Machines (IaaS): Used for hosting critical applications and services.
+A. Compute Layer – Azure Virtual Machine Scale Sets (VMSS) & Workload Customization
+   Azure Virtual Machine Scale Sets (VMSS): Scalable VM deployments with automatic scaling.
 
-   Custom VM Images: Built using Azure Image Builder to standardize workload configurations.
+   Custom VM Images: Versioned images stored in Shared Image Gallery for consistent deployments.
 
-   Scaling Mechanisms: Azure Virtual Machine Scale Sets (VMSS) for automatic scaling.
+   Authentication: SSH keys for Linux VMs, strong passwords for Windows VMs, all secured in Key Vault.
 
    Backup & Disaster Recovery: Azure Backup & Site Recovery for data protection.
 
@@ -81,7 +81,7 @@ A conceptual diagram illustrates the above components visually—showing connect
 | `terrafrom/`                   | Contains Terraform configuration files.          |
 | `terrafrom/modules/`           | Reusable Terraform modules for different components. |
 | `terrafrom/modules/networking/`| Networking resources (VNet, Subnets, etc.).     |
-| `terrafrom/modules/compute/`   | Compute resources (VMs, VMSS, etc.).             |
+| `terrafrom/modules/compute/`   | Compute resources (VMSS with SSH/password auth). |
 | `terrafrom/modules/security/`  | Security components (NSG, Key Vault, etc.).      |
 | `terrafrom/modules/monitoring/`| Monitoring and observability resources.          |
 | `terrafrom/modules/image-builder/` | Custom image building resources.              |
@@ -115,6 +115,7 @@ A conceptual diagram illustrates the above components visually—showing connect
 - Azure subscription
 - Terraform >= 1.5.0
 - GitHub repository with Actions enabled
+- Azure Storage Account for Terraform remote state (created separately)
 
 ## Setup
 
@@ -175,40 +176,47 @@ The GitHub Actions workflows automatically:
 
 - **Pull Requests**: Runs format, validate, and plan
 - **Push to main**: Runs full apply after validation
-- **Manual Dispatch**: Allows manual triggering of the Terraform workflow
-- **Image Builder**: Manually triggered to build and customize VM images using Azure Image Builder
+- **Manual Dispatch**: Allows manual triggering of apply or destroy with storage account selection
+- **Image Builder**: PowerShell-based workflow to provision VMSS from gallery images with connectivity and app testing
 
-#### Image Building Pipeline
+#### Image Building and VMSS Provisioning Pipeline
 
-The image building pipeline allows you to customize VM images with specific configurations, software installations, or security hardening. It uses Azure Image Builder to create reproducible images stored in a Shared Image Gallery.
+The image building pipeline creates versioned custom VM images in Shared Image Gallery. The VMSS provisioning workflow uses PowerShell to deploy VMSS from gallery images and perform validation.
 
-To trigger the image build:
-1. Go to the GitHub repository Actions tab
-2. Select "Image Builder CI/CD" workflow
-3. Click "Run workflow" (manual dispatch)
-4. The pipeline will:
-   - Apply Terraform infrastructure
-   - Create and submit the image build job using Azure CLI
-   - Wait for completion
-   - Make the custom image available for VM deployment
+**Image Building (Terraform):**
+- Creates Shared Image Gallery and versioned images
+- Supports marketplace-based image versioning
+
+**VMSS Provisioning (PowerShell):**
+- Deploys VMSS from selected gallery image
+- Tests SSH/RDP connectivity
+- Validates web application accessibility
+- Supports both Linux (SSH) and Windows (password) authentication
+
+To run VMSS provisioning:
+1. Go to GitHub Actions tab
+2. Select "Image Builder and VMSS Provisioning" workflow
+3. Choose image name (default: java-tomcat-image) and OS type
+4. Run workflow to deploy and test VMSS
 
 ## Outputs
 
 After deployment, the following outputs are available:
 
 - VNet and subnet details
-- VM and NIC information
+- VMSS and NIC information
 - Key Vault and NSG IDs
 - Log Analytics workspace details
 - Dashboard and monitoring extension info
-- Image builder resources (if enabled)
+- Shared Image Gallery resources (if enabled)
 
 ## Security
 
-- Randomly generated VM passwords stored in Key Vault
+- SSH keys for Linux VMs, strong passwords for Windows VMs, all stored in Key Vault
 - NSG rules restrict SSH (port 22) and RDP (port 3389) access to the pipeline user's public IP only
 - Key Vault network ACLs allow access only from the pipeline user's public IP
 - Azure Monitor agent for comprehensive logging
+- Remote Terraform state stored securely in Azure Storage
 
 ## Contributing
 
