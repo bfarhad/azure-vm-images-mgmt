@@ -106,6 +106,7 @@ jobs:
             --admin-username "adminuser" \
             --generate-ssh-keys \
             --public-ip-per-vm \
+            --nsg "rgdevazurevmimagesmgmtkv-nsg" \
             --instance-count 1 \
             --vm-sku "Standard_B1s" \
             --location ${{ env.LOCATION }}
@@ -121,6 +122,7 @@ jobs:
             --admin-username "adminuser" \
             --admin-password $PASSWORD \
             --public-ip-per-vm \
+            --nsg "rgdevazurevmimagesmgmtkv-nsg" \
             --instance-count 1 \
             --vm-sku "Standard_B1s" \
             --location ${{ env.LOCATION }}
@@ -144,12 +146,25 @@ jobs:
           nc -z $PUBLIC_IP 3389 && echo "RDP port open" || echo "RDP port closed"
         fi
 
+    - name: Wait for VM to be ready
+      run: |
+        # Wait for VMSS instance to be running
+        for i in {1..10}; do
+          status=$(az vmss list-instances --resource-group ${{ env.RESOURCE_GROUP }} --name "${{ env.RESOURCE_GROUP }}-vmss" --query "[0].instanceView.statuses[?code=='PowerState/running'].code" -o tsv)
+          if [ "$status" = "PowerState/running" ]; then
+            echo "VM is running"
+            break
+          fi
+          echo "Waiting for VM to be running... ($i/10)"
+          sleep 30
+        done
+
     - name: Test Web Application
       run: |
-        # Wait for VM to be ready
+        # Additional wait for services to start
         sleep 60
-        # Test web app on port 80 or 8080
-        if curl -f --max-time 30 http://$PUBLIC_IP >/dev/null 2>&1; then
+        # Test web app on Tomcat default port 8080
+        if curl -f --max-time 30 http://$PUBLIC_IP:8080 >/dev/null 2>&1; then
           echo "Web application is accessible"
         else
           echo "Web application test failed"
