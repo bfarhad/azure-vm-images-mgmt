@@ -147,6 +147,12 @@ variable "subscription_id" {
   description = "The Azure subscription ID"
 }
 
+variable "storage_account_name" {
+  type        = string
+  default     = "clwetfstate"
+  description = "The Azure Storage Account name for Terraform state"
+}
+
 variable "location" {
   type    = string
   default = "West Europe"

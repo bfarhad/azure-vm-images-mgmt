@@ -21,6 +21,11 @@ on:
         options:
           - apply
           - destroy
+      storage_account_name:
+        description: 'Azure Storage Account name for Terraform state'
+        required: true
+        default: 'clwetfstate'
+        type: string
 
 env:
   TF_VERSION: '1.5.0'
@@ -55,6 +60,7 @@ jobs:
         SUBSCRIPTION_ID=$(az account show --query id -o tsv)
         echo "TF_VAR_subscription_id=$SUBSCRIPTION_ID" >> $GITHUB_ENV
         echo "Subscription ID: $SUBSCRIPTION_ID"
+        echo "TF_VAR_storage_account_name=${{ inputs.storage_account_name }}" >> $GITHUB_ENV
 
     - name: Terraform Format
       run: terraform fmt -check -diff

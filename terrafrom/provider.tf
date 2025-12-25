@@ -1,5 +1,12 @@
 # providers.tf
 terraform {
+  backend "azurerm" {
+    resource_group_name  = "global-management-RG"
+    storage_account_name = var.storage_account_name
+    container_name       = "terraformstate"
+    key                  = "azvmimages/terraform.tfstate"
+  }
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
