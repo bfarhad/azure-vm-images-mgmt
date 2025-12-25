@@ -84,9 +84,6 @@ output "gallery_name" {
   value = length(module.image-builder) > 0 ? module.image-builder[0].gallery_name : null
 }
 
-output "built_image_id" {
-  value = length(module.image-builder) > 0 ? module.image-builder[0].image_id : null
-}
 
 output "built_image_name" {
   value = length(module.image-builder) > 0 ? module.image-builder[0].image_name : null
