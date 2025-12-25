@@ -73,7 +73,11 @@ jobs:
         echo "TF_VAR_subscription_id=$SUBSCRIPTION_ID" >> $GITHUB_ENV
         echo "ARM_SUBSCRIPTION_ID=$SUBSCRIPTION_ID" >> $GITHUB_ENV
         echo "Subscription ID: $SUBSCRIPTION_ID"
-        echo "TF_VAR_storage_account_name=${{ inputs.storage_account_name }}" >> $GITHUB_ENV
+        STORAGE_ACCOUNT_NAME="${{ inputs.storage_account_name }}"
+        if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+          STORAGE_ACCOUNT_NAME="clwetfstate"
+        fi
+        echo "TF_VAR_storage_account_name=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
 
     - name: Get Storage Account Key
       run: |
@@ -81,6 +85,7 @@ jobs:
         if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
           STORAGE_ACCOUNT_NAME="clwetfstate"
         fi
+        echo "TF_VAR_storage_account_name=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
         STORAGE_KEY=$(az storage account keys list --resource-group global-management-RG --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
         echo "ARM_ACCESS_KEY=$STORAGE_KEY" >> $GITHUB_ENV
 
@@ -88,7 +93,7 @@ jobs:
       run: terraform fmt -check -diff
 
     - name: Terraform Init
-      run: terraform init -backend-config="storage_account_name=${{ inputs.storage_account_name }}"
+      run: terraform init -backend-config="storage_account_name=$TF_VAR_storage_account_name"
 
     - name: Terraform Validate
       run: terraform validate
