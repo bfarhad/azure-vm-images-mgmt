@@ -31,8 +31,14 @@ variable "base_image_sku" {
 }
 
 variable "build_script" {
-  type = string
+  type        = string
   description = "The inline script to run during image build"
+}
+
+variable "managed_image_id" {
+  type        = string
+  default     = null
+  description = "ID of managed image to use for creating gallery image version"
 }
 
 
