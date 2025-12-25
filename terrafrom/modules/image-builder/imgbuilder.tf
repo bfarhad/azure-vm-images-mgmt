@@ -40,23 +40,17 @@ resource "azurerm_shared_image" "image" {
   tags = var.tags
 }
 
-data "azurerm_shared_image" "existing" {
-  name                = var.build_image_name
-  gallery_name        = azurerm_shared_image_gallery.gallery.name
-  resource_group_name = var.resource_group_name
-}
-
 resource "azurerm_shared_image_version" "example" {
   count               = var.source_vm_id != null ? 1 : 0
   name                = "0.0.1"
-  gallery_name        = data.azurerm_shared_image.existing.gallery_name
-  image_name          = data.azurerm_shared_image.existing.name
-  resource_group_name = data.azurerm_shared_image.existing.resource_group_name
-  location            = data.azurerm_shared_image.existing.location
+  gallery_name        = azurerm_shared_image.image.gallery_name
+  image_name          = azurerm_shared_image.image.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
   managed_image_id    = data.azurerm_image.managed[0].id
 
   target_region {
-    name                   = data.azurerm_shared_image.existing.location
+    name                   = var.location
     regional_replica_count = 2
     storage_account_type   = "Standard_LRS"
   }
