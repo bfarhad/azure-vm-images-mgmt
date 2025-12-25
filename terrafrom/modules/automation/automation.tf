@@ -16,9 +16,10 @@ resource "azurerm_automation_runbook" "runbook" {
   description             = "Runbook for image customization tasks"
   runbook_type            = "PowerShell"
 
-  publish_content_link {
-    uri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/automation-runbook-getvms/azuredeploy.json"
-  }
+  content = <<-EOT
+    # Sample PowerShell runbook
+    Write-Output "Hello from Azure Automation Runbook"
+  EOT
 
   tags = var.tags
 }

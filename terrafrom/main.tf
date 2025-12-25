@@ -76,6 +76,8 @@ module "image-builder" {
   base_image_sku       = var.base_image_sku
   build_script         = var.build_script
   gallery_name         = local.gallery_name
+
+  depends_on = [azurerm_resource_group.rg]
 }
 
 
