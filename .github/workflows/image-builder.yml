@@ -62,17 +62,16 @@ jobs:
 
     - name: Create Image Version
       run: |
-        $endOfLife = (Get-Date).AddMonths(1)
-        $sourceImageId = "/subscriptions/$env:ARM_SUBSCRIPTION_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Compute/images/${{ inputs.image_name }}-managed"
-        New-AzGalleryImageVersion `
-          -ResourceGroupName ${{ env.RESOURCE_GROUP }} `
-          -GalleryName ${{ env.GALLERY_NAME }} `
-          -GalleryImageDefinitionName ${{ inputs.image_name }} `
-          -Name "latest" `
-          -Location ${{ env.LOCATION }} `
-          -SourceImageId $sourceImageId `
-          -EndOfLife $endOfLife `
-          -TargetRegion @{Name="${{ env.LOCATION }}";RegionalReplicaCount=1}
+        end_of_life=$(date -u -d '+1 month' +%Y-%m-%d)
+        source_image_id="/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Compute/images/${{ inputs.image_name }}-managed"
+        az sig image-version create \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --gallery-name ${{ env.GALLERY_NAME }} \
+          --gallery-image-definition ${{ inputs.image_name }} \
+          --gallery-image-version "latest" \
+          --managed-image $source_image_id \
+          --end-of-life-date $end_of_life \
+          --target-regions "${{ env.LOCATION }}=1"
 
     - name: Get Image ID
       run: |
