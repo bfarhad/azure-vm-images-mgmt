@@ -79,7 +79,7 @@ jobs:
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --gallery-name ${{ env.GALLERY_NAME }} \
           --gallery-image-definition ${{ inputs.image_name }} \
-          --gallery-image-version "latest" \
+          --gallery-image-version "1.0.0" \
           --managed-image $source_image_id \
           --end-of-life-date $end_of_life \
           --target-regions "${{ env.LOCATION }}=1"
@@ -91,7 +91,7 @@ jobs:
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --gallery-name ${{ env.GALLERY_NAME }} \
           --gallery-image-definition ${{ inputs.image_name }} \
-          --gallery-image-version "latest" \
+          --gallery-image-version "1.0.0" \
           --query "id" -o tsv)
         echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
 
