@@ -62,7 +62,7 @@ jobs:
 
     - name: Create Image Version
       run: |
-        $endOfLife = (Get-Date).AddMonths(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
+        $endOfLife = (Get-Date).AddMonths(1)
         $sourceImageId = "/subscriptions/$env:ARM_SUBSCRIPTION_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Compute/images/${{ inputs.image_name }}-managed"
         New-AzGalleryImageVersion `
           -ResourceGroupName ${{ env.RESOURCE_GROUP }} `
@@ -71,7 +71,7 @@ jobs:
           -Name "latest" `
           -Location ${{ env.LOCATION }} `
           -SourceImageId $sourceImageId `
-          -EndOfLifeDate $endOfLife `
+          -EndOfLife $endOfLife `
           -TargetRegion @{Name="${{ env.LOCATION }}";RegionalReplicaCount=1}
 
     - name: Get Image ID
