@@ -13,7 +13,3 @@ output "image_id" {
 output "image_name" {
   value = azurerm_shared_image.image.name
 }
-
-output "version_id" {
-  value = azurerm_shared_image_version.version.id
-}
