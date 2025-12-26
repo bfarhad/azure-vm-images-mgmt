@@ -59,6 +59,20 @@ jobs:
           echo "Key Vault $KV_NAME does not exist. Skipping IP whitelisting."
         fi
 
+    - name: Update NSG Rules
+      run: |
+        NSG_NAME="rgdevazurevmimagesmgmtkv-nsg"
+        if az network nsg show --resource-group ${{ env.RESOURCE_GROUP }} --name $NSG_NAME >/dev/null 2>&1; then
+          echo "Updating NSG $NSG_NAME to allow IP $PUBLIC_IP"
+          az network nsg rule update --resource-group ${{ env.RESOURCE_GROUP }} --nsg-name $NSG_NAME --name AllowSSH --source-address-prefixes "$PUBLIC_IP/32"
+          az network nsg rule update --resource-group ${{ env.RESOURCE_GROUP }} --nsg-name $NSG_NAME --name AllowRDP --source-address-prefixes "$PUBLIC_IP/32"
+          az network nsg rule update --resource-group ${{ env.RESOURCE_GROUP }} --nsg-name $NSG_NAME --name AllowHTTP --source-address-prefixes "$PUBLIC_IP/32"
+          az network nsg rule update --resource-group ${{ env.RESOURCE_GROUP }} --nsg-name $NSG_NAME --name AllowHTTPS --source-address-prefixes "$PUBLIC_IP/32"
+          az network nsg rule update --resource-group ${{ env.RESOURCE_GROUP }} --nsg-name $NSG_NAME --name AllowTomcat --source-address-prefixes "$PUBLIC_IP/32"
+        else
+          echo "NSG $NSG_NAME does not exist. Skipping NSG update."
+        fi
+
     - name: Check Managed Image Existence
       run: |
         managed_image_name="${{ inputs.image_name }}-managed"
